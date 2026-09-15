@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History Log</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            width: 100vw;
+            height: 100vh;
+            background: #0f0f13;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 92vw;
+            height: 90vh;
+            background: rgba(20, 20, 30, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        h1 { color: #00ff88; }
+        .summary-box {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px 18px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        th { background-color: rgba(255, 255, 255, 0.05); color: #00ff88; }
+        tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+        .fee-badge { font-weight: bold; color: #00ff88; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Financial Ledger & Checkout Logs</h1>
+            <div>
+                <a href="/" class="btn">🏠 Home Dashboard</a>
+                <a href="/admin" class="btn" style="background: #3f37c9;">⚙️ Admin Panel</a>
+            </div>
+        </header>
+
+        <div class="summary-box">
+            Total Revenue Collected
+            <h2>₹{{ revenue }}</h2>
+        </div>
+
+        <h3>Archived Checkouts</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Driver Name</th>
+                    <th>Vehicle Plate</th>
+                    <th>Slot Used</th>
+                    <th>Entry Timestamp</th>
+                    <th>Exit Timestamp</th>
+                    <th>Amount Charged</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>#{{ record.id }}</td>
+                    <td>{{ record.name }}</td>
+                    <td><code style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">{{ record.vehicle }}</code></td>
+                    <td>Slot {{ record.slot }}</td>
+                    <td>{{ record.entry }}</td>
+                    <td>{{ record.exit }}</td>
+                    <td class="fee-badge">₹{{ record.fee }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #888; font-style: italic; padding: 30px;">No transaction logs recorded yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

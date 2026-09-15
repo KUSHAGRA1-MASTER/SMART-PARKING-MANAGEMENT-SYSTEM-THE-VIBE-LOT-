@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE VIBE LOT: Central Command</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            width: 100vw; height: 100vh; overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #08080a; color: #ffffff;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .scene {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #08080a 100%);
+            z-index: 1; overflow: hidden;
+        }
+        .dashboard-container {
+            position: relative; z-index: 10; width: 98vw; height: 96vh;
+            background: rgba(15, 15, 25, 0.85); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px;
+            padding: 30px; display: grid; grid-template-columns: 340px 1fr; gap: 25px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
+        }
+        /* Left Sidebar - Admin Console & Ledger */
+        .sidebar {
+            background: rgba(0, 0, 0, 0.4); border-radius: 16px; padding: 15px;
+            display: flex; flex-direction: column; gap: 15px; overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .sidebar h2 { font-size: 1.3rem; color: #00f0ff; margin-bottom: 5px; }
+        .section-box { background: rgba(255, 255, 255, 0.03); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .section-box h4 { font-size: 0.9rem; margin-bottom: 8px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Right Main Content Area */
+        .main-content { display: flex; flex-direction: column; justify-content: space-between; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; }
+        
+        /* Much larger header size */
+        header h1 { font-size: 2.6rem; letter-spacing: 2px; background: linear-gradient(45deg, #ff0055, #00f0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        
+        .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 15px 0; }
+        .card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 12px; text-align: center; }
+        .card h2 { font-size: 1.5rem; margin-top: 4px; }
+        .card.available h2 { color: #00ff88; }
+        .card.occupied h2 { color: #ff3366; }
+
+        /* Increased gap between slots to create more space */
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 28px; flex-grow: 1; margin-top: 15px; align-content: center; }
+        
+        /* Made slots significantly BIGGER in height and padding */
+        .slot {
+            background: rgba(255, 255, 255, 0.02); border: 3px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; font-weight: bold; font-size: 1.2rem; position: relative;
+            padding: 15px; height: 135px; width: 100%;
+        }
+        .slot.Available { border-color: #00ff88; background: rgba(0, 255, 136, 0.04); color: #00ff88; }
+        .slot.Occupied { border-color: #ff3366; background: rgba(255, 51, 102, 0.04); color: #ff3366; }
+        .vehicle-tag { font-size: 0.85em; color: #fff; margin-top: 8px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 6px; font-family: monospace; border: 1px solid rgba(255,255,255,0.15); }
+        
+        .search-bar { width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white; font-size: 0.85rem; margin-bottom: 8px; }
+        .btn { padding: 8px 16px; text-decoration: none; color: white; border-radius: 8px; font-weight: bold; font-size: 0.85rem; border: none; cursor: pointer; display: inline-block; }
+        .btn-book { background: linear-gradient(135deg, #00f0ff, #0077b6); color: #000; }
+        .btn-admin { background: linear-gradient(135deg, #7209b7, #3f37c9); }
+        .ledger-row { display: flex; justify-content: space-between; font-size: 0.8em; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body>
+
+    <div class="scene"></div>
+
+    <div class="dashboard-container">
+        <!-- LEFT PANEL: Admin Console, Vehicle History & Ledger -->
+        <div class="sidebar">
+            <div>
+                <h2>Admin Console</h2>
+                <p style="font-size: 0.8rem; color: #aaa;">User: KUSHAGRA (Admin)</p>
+            </div>
+
+            <!-- Current Vehicles Parked -->
+            <div class="section-box">
+                <h4>Current Vehicles Parked</h4>
+                <div style="max-height: 120px; overflow-y: auto; margin-top: 5px;">
+                    {% for vehicle in active_vehicles %}
+                        <div class="ledger-row">
+                            <span>Slot {{ vehicle.slot }}</span>
+                            <span style="font-family: monospace; color: #00f0ff;">{{ vehicle.vehicle }}</span>
+                        </div>
+                    {% else %}
+                        <p style="font-size: 0.75em; color: #777; font-style: italic;">No active vehicles.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Vehicle History Log Search with Working Live Filter -->
+            <div class="section-box">
+                <h4>Vehicle History</h4>
+                <input type="text" id="searchInput" class="search-bar" placeholder="Search vehicle or name..." oninput="filterHistory()">
+                <div style="max-height: 100px; overflow-y: auto; font-size: 0.75em; color: #ccc; margin-top: 5px;">
+                    <div id="historyList">
+                        {% for record in history_records %}
+                            <div class="ledger-row searchable-item" style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span style="font-family: monospace; color: #00f0ff;">{{ record.vehicle }}</span>
+                                <span>{{ record.name }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Active Summary Box -->
+            <div class="section-box" style="text-align: center;">
+                <span style="font-size: 0.8rem; color: #aaa;">Total Active</span>
+                <h2 style="font-size: 1.8rem; color: #ff3366;">{{ occupied }}</h2>
+                <span style="font-size: 0.75em; background: rgba(255,51,102,0.2); color: #ff3366; padding: 2px 8px; border-radius: 4px;">
+                    {{ 'Parking Full' if available == 0 else 'Slots Open' }}
+                </span>
+            </div>
+
+            <!-- Finance Ledger -->
+            <div class="section-box">
+                <h4>Finance Ledger</h4>
+                <div style="max-height: 110px; overflow-y: auto;">
+                    {% for record in history_records %}
+                        <div class="ledger-row">
+                            <span>Bay {{ record.slot }}</span>
+                            <span style="color: #00ff88;">₹{{ record.fee }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <a href="/history-log" class="btn btn-admin" style="text-align: center;">📊 Open Full Ledger</a>
+        </div>
+
+        <!-- RIGHT PANEL: Central Command Grid View -->
+        <div class="main-content">
+            <header>
+                <h1>THE VIBE LOT: Central Command</h1>
+                <div style="display: flex; gap: 10px;">
+                    {% if available > 0 %}
+                        <a href="/book" class="btn btn-book">➕ Book Bay</a>
+                    {% else %}
+                        <button class="btn" style="opacity: 0.4; cursor: not-allowed;" disabled>❌ Full</button>
+                    {% endif %}
+                    <a href="/admin" class="btn btn-admin">⚙️ Console</a>
+                </div>
+            </header>
+
+            <div class="stats">
+                <div class="card"><span>Total</span><h2>10</h2></div>
+                <div class="card available"><span>Available</span><h2>{{ available }}</h2></div>
+                <div class="card occupied"><span>Occupied</span><h2>{{ occupied }}</h2></div>
+                <div class="card"><span>Reserved</span><h2>2</h2></div>
+                <div class="card"><span>Offline</span><h2>0</h2></div>
+            </div>
+
+            <h3 style="font-size: 1.1rem; color: #ccc;">Parking Bay Layout</h3>
+            <div class="grid">
+                {% for slot in slots %}
+                    <div class="slot {{ slot.status }}">
+                        {% if slot.id in [9, 10] %}
+                            <span style="font-size: 1.4rem;">🏍️</span>
+                            <span style="font-size: 1.1rem;">Slot {{ slot.id }}</span>
+                            <span style="font-size: 0.65em; color: #00f0ff;">2-Wheeler Only</span>
+                        {% else %}
+                            <span style="font-size: 1.2rem;">Slot {{ slot.id }}</span>
+                        {% endif %}
+                        
+                        <span style="font-size: 0.75em; opacity: 0.75; margin-top: 4px;">{{ slot.status }}</span>
+                        
+                        {% if slot.status == 'Occupied' %}
+                            <span class="vehicle-tag">🏎️ {{ slot.vehicle }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Script to dynamically handle live text searching -->
+    <script>
+        function filterHistory() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let items = document.getElementsByClassName('searchable-item');
+            
+            for (let i = 0; i < items.length; i++) {
+                let text = items[i].innerText.toLowerCase();
+                if (text.includes(input)) {
+                    items[i].style.display = "flex";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
